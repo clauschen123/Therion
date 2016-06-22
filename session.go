@@ -1,59 +1,67 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 )
 
+type SessionMgr map[uint](*Session)
 type Session struct {
 	id        uint
 	name      string
 	connected bool
-	ch        chan string
-	conn      net.Conn
+	ch        chan *Message
+	stream    IStream
 }
 
-type SessionMgr map[uint](*Session)
+func (session *Session) GetConn() net.Conn {
+	return session.stream.GetConn()
+}
 
-func MakeSession(conn net.Conn) {
+func MakeSession(conn net.Conn) *Session {
 
-	ch := make(chan string)
-	//go session.session_send(conn, ch) //这里如果不立即go一下，ch <- "You are " + name这句会死
-
+	ch := make(chan *Message)
 	name := conn.RemoteAddr().String()
-	//ch <- "You are " + name
 
-	session := &Session{0, name, true, ch, conn}
-	fmt.Println(name, " has arrived 1")
+	session := &Session{0, name, true, ch, MakeStream(conn)}
 
-	messages <- name + " has arrived"
-	entering <- session
+	go session.session_send()
+	session.ch <- MakeMessage(1, 2, []byte("You are "+name))
 
 	go session.session_recv()
-	go session.session_send() //这里如果不立即go一下，ch <- "You are " + name这句会死
+	messages <- MakeMessage(1, 2, []byte(name+" has arrived"))
+	entering <- session
 
-	fmt.Println(name, " has arrived 2")
-	session.ch <- "You are " + name
-	fmt.Println(name, " has arrived 3")
+	return session
 }
 
 func (session *Session) session_recv() {
-	input := bufio.NewScanner(session.conn)
-	for input.Scan() {
-		fmt.Println(input.Text())
-		messages <- session.name + ": " + input.Text()
+
+	for {
+
+		msg, err := session.stream.Read()
+
+		if err != nil {
+			fmt.Println(session.name, " disconnected!")
+			break
+		}
+		fmt.Println("Succ read 1 message ...")
+		messages <- msg
+
 	}
-	// NOTE: ignoring potential errors from input.Err()
-	fmt.Println(session.name + " has left")
 
 	leaving <- session
-	messages <- session.name + " has left"
-	session.conn.Close()
+	messages <- MakeMessage(1, 2, []byte(session.name+" has left"))
+	session.GetConn().Close()
 }
 
 func (session *Session) session_send() {
 	for msg := range session.ch {
-		fmt.Fprintln(session.conn, msg) // NOTE: ignoring network errors
+		//fmt.Fprintln(session.GetConn(), msg) // NOTE: ignoring network errors
+		if err := session.stream.Write(msg); err != nil {
+			fmt.Println("stream write msg fail:", err)
+			break
+		}
+		fmt.Println(" ------Send a msg")
 	}
 }
