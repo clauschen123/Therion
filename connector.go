@@ -1,15 +1,14 @@
 package main
 
-import (
-	//	"io"
-	"log"
-	"net"
-	//	"os"
-)
+//	"io"
+//	"log"
+//	"net"
+//	"os"
 
+/*
 func Connect(addr string) error {
 
-	go run()
+	go Run()
 
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
@@ -32,6 +31,7 @@ func Connect(addr string) error {
 	//	<-done // wait for background goroutine to finish
 	return err
 }
+*/
 
 //send
 //func mustCopy(dst io.Writer, src io.Reader) {

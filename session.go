@@ -18,6 +18,10 @@ func (session *Session) GetConn() net.Conn {
 	return session.stream.GetConn()
 }
 
+func (session *Session) Post(msg *Message) {
+	session.ch <- msg
+}
+
 func MakeSession(conn net.Conn) *Session {
 
 	ch := make(chan *Message)
@@ -25,17 +29,13 @@ func MakeSession(conn net.Conn) *Session {
 
 	session := &Session{0, name, true, ch, MakeStream(conn)}
 
-	//	go session.session_send()
-	//	session.ch <- MakeMessage(1, 2, []byte("You are "+name))
-
-	go session.session_recv()
-	messages <- MakeMessage(1, 2, []byte(name+" has arrived"))
-	entering <- session
+	go session.send()
+	go session.receive()
 
 	return session
 }
 
-func (session *Session) session_recv() {
+func (session *Session) receive() {
 
 	for {
 		msg, err := session.stream.Read()
@@ -45,16 +45,18 @@ func (session *Session) session_recv() {
 			break
 		}
 		fmt.Println("Succ read 1 message ...")
-		messages <- msg
+		queue <- msg
 	}
 
 	leaving <- session
-	messages <- MakeMessage(1, 2, []byte(session.name+" has left"))
+	queue <- MakeMessage(e_protoid_base, e_msgid_logout, []byte(session.name+" has left"))
 	session.GetConn().Close()
 }
 
-func (session *Session) session_send() {
-	for msg := range session.ch {
+func (session *Session) send() {
+
+	var ch <-chan *Message = session.ch
+	for msg := range ch {
 		//fmt.Fprintln(session.GetConn(), msg) // NOTE: ignoring network errors
 		if err := session.stream.Write(msg); err != nil {
 			fmt.Println("stream write msg fail:", err)

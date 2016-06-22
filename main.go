@@ -3,11 +3,16 @@ package main
 import (
 	"fmt"
 	"log"
-	//"server"
 )
 
 func server() {
-	err := Start("localhost:8000")
+
+	var server Server
+
+	server.Init()
+	server.RegisterProtocol(MakeProtocol(e_protoid_base))
+
+	err := Start(&server, "localhost:8000")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -17,7 +22,13 @@ func server() {
 }
 
 func client() {
-	err := Connect("localhost:8000")
+
+	var server Server
+
+	server.Init()
+	server.RegisterProtocol(MakeProtocol(e_protoid_base))
+
+	err := Connect(&server, "localhost:8000")
 	if err != nil {
 		log.Fatal(err)
 	}
