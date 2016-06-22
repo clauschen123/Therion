@@ -25,8 +25,8 @@ func MakeSession(conn net.Conn) *Session {
 
 	session := &Session{0, name, true, ch, MakeStream(conn)}
 
-	go session.session_send()
-	session.ch <- MakeMessage(1, 2, []byte("You are "+name))
+	//	go session.session_send()
+	//	session.ch <- MakeMessage(1, 2, []byte("You are "+name))
 
 	go session.session_recv()
 	messages <- MakeMessage(1, 2, []byte(name+" has arrived"))
@@ -38,7 +38,6 @@ func MakeSession(conn net.Conn) *Session {
 func (session *Session) session_recv() {
 
 	for {
-
 		msg, err := session.stream.Read()
 
 		if err != nil {
@@ -47,7 +46,6 @@ func (session *Session) session_recv() {
 		}
 		fmt.Println("Succ read 1 message ...")
 		messages <- msg
-
 	}
 
 	leaving <- session

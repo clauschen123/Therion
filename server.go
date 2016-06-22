@@ -7,7 +7,7 @@ import (
 var (
 	entering = make(chan *Session)
 	leaving  = make(chan *Session)
-	messages = make(chan *Message) // all incoming client messages
+	messages = make(chan *Message)
 )
 
 func run() {
