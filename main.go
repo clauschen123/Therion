@@ -14,7 +14,7 @@ func StartServer() {
 		return
 	}
 
-	if err := Start(&game, "0.0.0.0:8000"); err != nil {
+	if err := Accept(&game, "0.0.0.0:8000"); err != nil {
 		log.Fatal(err)
 	}
 

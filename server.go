@@ -1,3 +1,7 @@
+// Copyright © 2016.6 Claus Chen
+//
+//
+
 package main
 
 import (
@@ -32,20 +36,22 @@ func Connect(svr IServer, addr string) error {
 
 	server = svr
 
-	go svr.Run()
+	go server.Run()
 
 	socket, err := net.Dial("tcp", addr)
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
-	svr.OnConnected(0, socket)
+	svr.OnConnected(0, socket) //TODO use 0 temperaly
 
 	return nil
 }
 
 //!+侦听模式
-func Start(svr IServer, addr string) error {
+var sid SID = 0
+
+func Accept(svr IServer, addr string) error {
 
 	server = svr
 
@@ -55,17 +61,18 @@ func Start(svr IServer, addr string) error {
 		return err
 	}
 
-	go svr.Run()
+	go server.Run()
 
 	go func() {
 		for {
-			conn, err := listener.Accept()
+			socket, err := listener.Accept()
 			if err != nil {
 				log.Print(err)
 				continue
 			}
 			fmt.Println("Accpet a connect")
-			svr.OnAccepted(conn)
+			svr.OnAccepted(sid+1, socket) //TODO
+			sid += 1
 		}
 	}()
 
@@ -75,18 +82,20 @@ func Start(svr IServer, addr string) error {
 type IServer interface {
 	Init(EHostType) error
 
-	OnConnected(uint32, net.Conn)
-	OnAccepted(net.Conn)
+	OnConnected(SID, net.Conn)
+	OnAccepted(SID, net.Conn)
 
 	Run()
 
 	Enter(*Connection)
 	Exit(*Connection)
-	Post(*Connection, *Message)
+	Post(IConnectionHandler, *Message)
 }
 
 //!+ Sample server
 type Server struct {
+	curConnection *Connection
+	svrHandler    IConnectionHandler
 }
 
 func (this *Server) Run() {
@@ -107,7 +116,8 @@ func (this *Server) Run() {
 }
 
 func (this *Server) Init(host EHostType) error {
-
+	this.svrHandler = MakeConnectionHandler()
+	this.svrHandler.RegisterProtocol(SystemProto)
 	return nil
 }
 
@@ -119,26 +129,30 @@ func (this *Server) Exit(conn *Connection) {
 	leaving <- conn
 }
 
-func (this *Server) Post(conn *Connection, msg *Message) {
-	queue <- func() { conn.HandleMessage(msg) }
+func (this *Server) Post(hdlr IConnectionHandler, msg *Message) {
+	queue <- func() { hdlr.HandleMessage(msg) }
 }
 
-func (this *Server) OnConnected(sid uint32, socket net.Conn) {
-	conn := MakeConnection(socket)
-
-	conn.RegisterProtocol(MakeProtocol(e_protoid_system))
+func (this *Server) OnConnected(sid SID, socket net.Conn) {
+	conn := MakeConnection(socket, this.svrHandler)
+	this.svrHandler.Established(sid, conn)
 
 	conn.Post(MakeMessage(e_protoid_system, e_msgid_auth, []byte("Hello server!")))
+
 	this.Enter(conn)
 }
 
-func (this *Server) OnAccepted(socket net.Conn) {
-	conn := MakeConnection(socket)
+func (this *Server) OnAccepted(sid SID, socket net.Conn) {
 
-	conn.RegisterProtocol(MakeProtocol(e_protoid_system))
+	conn := MakeConnection(socket, this.svrHandler)
+	this.svrHandler.Established(sid, conn)
 
 	conn.Post(MakeMessage(e_protoid_system, e_msgid_info, []byte("You are "+conn.name)))
 
 	this.Enter(conn)
-	this.Post(conn, MakeMessage(e_protoid_system, e_msgid_connected, []byte(conn.name+" has arrived")))
+
+	//TODO
+	this.svrHandler.Send2Servers(
+		[]SID{},
+		MakeMessage(e_protoid_system, e_msgid_connected, []byte(conn.name+" has arrived")))
 }
