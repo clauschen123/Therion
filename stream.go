@@ -17,18 +17,18 @@ var (
 type IStream interface {
 	Read() (*Message, error)
 	Write(*Message) error
-	GetConn() net.Conn
+	RawConn() net.Conn
 }
 
 type Stream struct {
 	conn net.Conn
 }
 
-func MakeStream(conn net.Conn) IStream {
-	return &Stream{conn}
+func MakeStream(sock net.Conn) IStream {
+	return &Stream{sock}
 }
 
-func (stream *Stream) GetConn() net.Conn {
+func (stream *Stream) RawConn() net.Conn {
 	return stream.conn
 }
 

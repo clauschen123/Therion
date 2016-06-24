@@ -5,15 +5,16 @@ import (
 	"log"
 )
 
-func server() {
+func StartServer() {
 
-	var server Server
+	var game Server
 
-	server.Init()
-	server.RegisterProtocol(MakeProtocol(e_protoid_base))
+	if err := game.Init(e_host_game); err != nil {
+		log.Fatal(err)
+		return
+	}
 
-	err := Start(&server, "localhost:8000")
-	if err != nil {
+	if err := Start(&game, "0.0.0.0:8000"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -21,15 +22,16 @@ func server() {
 	fmt.Scan(&str)
 }
 
-func client() {
+func StartClient() {
 
-	var server Server
+	var gate Server
 
-	server.Init()
-	server.RegisterProtocol(MakeProtocol(e_protoid_base))
+	if err := gate.Init(e_host_gate); err != nil {
+		log.Fatal(err)
+		return
+	}
 
-	err := Connect(&server, "localhost:8000")
-	if err != nil {
+	if err := Connect(&gate, "127.0.0.1:8000"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -38,6 +40,6 @@ func client() {
 }
 
 func main() {
-	//server()
-	client()
+	//StartServer()
+	StartClient()
 }
