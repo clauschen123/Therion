@@ -13,14 +13,14 @@ import (
 type EHostType int8
 
 const (
-	e_host_none EHostType = iota
-	e_host_client
-	e_host_gate
-	e_host_game
-	e_host_center
-	e_host_db
-	e_host_logger
-	e_host_console
+	E_host_none EHostType = iota
+	E_host_client
+	E_host_gate
+	E_host_game
+	E_host_center
+	E_host_db
+	E_host_logger
+	E_host_console
 )
 
 var (

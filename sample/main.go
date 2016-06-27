@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/clauschen123/Therion/"
+	"github.com/clauschen123/Therion/server"
 )
 
 func StartServer() {
 
-	var game Server
+	var game server.Server
 
-	if err := game.Init(e_host_game); err != nil {
+	if err := game.Init(server.E_host_game); err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	if err := Accept(&game, "0.0.0.0:8000"); err != nil {
+	if err := server.Accept(&game, "0.0.0.0:8000"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -26,14 +26,14 @@ func StartServer() {
 
 func StartClient() {
 
-	var gate Server
+	var gate server.Server
 
-	if err := gate.Init(e_host_gate); err != nil {
+	if err := gate.Init(server.E_host_gate); err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	if err := Connect(&gate, "127.0.0.1:8000"); err != nil {
+	if err := server.Connect(&gate, "127.0.0.1:8000"); err != nil {
 		log.Fatal(err)
 	}
 
