@@ -1,7 +1,7 @@
 // Copyright © 2016.6 Claus Chen
 //
 //
-package main
+package server
 
 import (
 	"bytes"

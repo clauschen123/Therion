@@ -2,7 +2,7 @@
 //
 //
 
-package main
+package server
 
 type MsgID uint16
 
