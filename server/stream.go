@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	//	"fmt"
 	"io"
 	"net"
 )
@@ -50,17 +49,14 @@ func (stream *Stream) Read() (msg *Message, err error) {
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.length); err != nil {
 		return nil, err
 	}
-	//fmt.Println("**** length:", msg.length)
 
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.protoid); err != nil {
 		return nil, err
 	}
-	//fmt.Println("**** protoid:", msg.protoid)
 
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.msgid); err != nil {
 		return nil, err
 	}
-	//fmt.Println("**** msgid:", msg.msgid)
 
 	if msg.length > msg_max_len {
 		return nil, MessageTooBig

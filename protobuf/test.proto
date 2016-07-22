@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package test;
+
+enum proto { id = 2; }
+
+message msg_test {
+  required proto proto_id = 1 [default=id];
+  required uint32 msg_id = 2 [default=1];
+  optional string text = 3;
+} 

@@ -95,7 +95,6 @@ func (this *ConnectionHandler) Send2Servers(sids SIDS, msg *Message) bool {
 			conn := this.getConnBySID(sid)
 			conn.Post(msg)
 		}
-
 	}
 	return true
 }
@@ -154,7 +153,7 @@ func (this *Connection) receive() {
 	}
 
 	leaving <- this
-	server.Post(this.handler, MakeMessage(e_protoid_system, e_msgid_disconnect, []byte(this.name+" has left")))
+	//TODO	server.Post(this.handler, MakeMessage(e_protoid_system, e_msgid_disconnect, []byte(this.name+" has left")))
 
 	this.RawConn().Close()
 }

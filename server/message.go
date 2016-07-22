@@ -4,27 +4,18 @@
 
 package server
 
-type MsgID uint16
+type MsgID uint32
 
 const (
-	e_msgid_connected MsgID = iota
-	e_msgid_disconnect
-	e_msgid_auth
-	e_msgid_echo
-	e_msgid_info
-	e_msgid_num
-)
-
-const (
-	msg_head_len uint32 = 8
+	msg_head_len uint32 = 4
 	msg_max_len  uint32 = 10 * 1024
 )
 
 //!+ Message
 type message_head struct {
-	length  uint32
-	protoid ProtoID
-	msgid   MsgID
+	length uint32
+	//protoid ProtoID
+	//msgid   MsgID
 }
 
 type message_body struct {
