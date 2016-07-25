@@ -42,6 +42,6 @@ func StartClient() {
 }
 
 func main() {
-	//StartServer()
-	StartClient()
+	StartServer()
+	//StartClient()
 }

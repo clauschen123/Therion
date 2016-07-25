@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 )
@@ -47,14 +48,17 @@ func (stream *Stream) Read() (msg *Message, err error) {
 	headbuf := bytes.NewReader(head)
 
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.length); err != nil {
+		fmt.Println("read len err:", err)
 		return nil, err
 	}
 
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.protoid); err != nil {
+		fmt.Println("read protoid err:", err)
 		return nil, err
 	}
 
 	if err = binary.Read(headbuf, binary.LittleEndian, &msg.msgid); err != nil {
+		fmt.Println("read msgid err:", err)
 		return nil, err
 	}
 
@@ -78,10 +82,6 @@ func (stream *Stream) Read() (msg *Message, err error) {
 func (stream *Stream) Write(msg *Message) (err error) {
 
 	buff := bytes.NewBuffer([]byte{})
-
-	// 防止将Send放在go内造成的多线程冲突问题
-	//	self.sendtagGuard.Lock()
-	//	defer self.sendtagGuard.Unlock()
 
 	if err = binary.Write(buff, binary.LittleEndian, msg.length); err != nil {
 		return

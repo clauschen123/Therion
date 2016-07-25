@@ -31,6 +31,10 @@ var (
 	connectionMgr         = make(ConnectionMgr)
 )
 
+func GetServer() IServer {
+	return server
+}
+
 //!+连接模式
 func Connect(svr IServer, addr string) error {
 
@@ -49,13 +53,6 @@ func Connect(svr IServer, addr string) error {
 }
 
 //!+侦听模式
-//TODO
-var sid SID = 0
-
-func GetServer() IServer {
-	return server
-}
-
 func Accept(svr IServer, addr string) error {
 
 	server = svr
@@ -76,8 +73,7 @@ func Accept(svr IServer, addr string) error {
 				continue
 			}
 			fmt.Println("Accpet a connect")
-			svr.OnAccepted(sid+1, socket) //TODO
-			sid += 1
+			svr.OnAccepted(0, socket) //TODO
 		}
 	}()
 
@@ -122,7 +118,9 @@ func (this *Server) Run() {
 }
 
 func (this *Server) Init(host EHostType) error {
+
 	this.svrHandler = MakeConnectionHandler()
+	this.RegisterProtocol(ProtoSystem)
 
 	return nil
 }
@@ -149,6 +147,7 @@ func (this *Server) OnConnected(sid SID, socket net.Conn) {
 
 	//TODO
 	//	conn.Post(MakeMessage(e_protoid_system, e_msgid_auth, []byte("Hello server!")))
+	ProtoSystem.(*Protocol).Send2Server_MsgAuthServer(sid)
 
 	this.Enter(conn)
 }
@@ -162,9 +161,4 @@ func (this *Server) OnAccepted(sid SID, socket net.Conn) {
 	//	conn.Post(MakeMessage(e_protoid_system, e_msgid_info, []byte("You are "+conn.name)))
 
 	this.Enter(conn)
-
-	//TODO
-	//	this.svrHandler.Send2Servers(
-	//		[]SID{},
-	//		MakeMessage(e_protoid_system, e_msgid_connected, []byte(conn.name+" has arrived")))
 }

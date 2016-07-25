@@ -7,15 +7,15 @@ package server
 type MsgID uint32
 
 const (
-	msg_head_len uint32 = 4
+	msg_head_len uint32 = 12
 	msg_max_len  uint32 = 10 * 1024
 )
 
 //!+ Message
 type message_head struct {
-	length uint32
-	//protoid ProtoID
-	//msgid   MsgID
+	length  uint32
+	protoid ProtoID
+	msgid   MsgID
 }
 
 type message_body struct {
@@ -26,6 +26,11 @@ type Message struct {
 	message_head
 	message_body
 }
+
+//type Message struct {
+//	length uint32
+//	data   []byte
+//}
 
 //!+ New a message
 func MakeMessage(pid ProtoID, msgid MsgID, data []byte) *Message {

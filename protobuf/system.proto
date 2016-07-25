@@ -5,23 +5,21 @@ package system;
 enum proto { id = 1; }
 
 message msg_auth_client {
-  required proto proto_id = 1 [default=id];
-  required uint32 msg_id = 2 [default=1];
-  optional int32 type = 3;
-  optional string text = 4;
-  repeated int64 reps = 5;
-  optional group OptionalGroup = 6 {
+  required uint32 msg_id = 1 [default=1];
+  optional int32 type = 2;
+  optional string text = 3;
+  repeated int64 reps = 4;
+  optional group OptionalGroup = 5 {
     required string RequiredField = 6;
   }
 } 
 
 message msg_auth_server {
-  required proto proto_id = 1 [default=id];
-  required uint32 msg_id = 2 [default=2];
+  required uint32 msg_id = 1 [default=2];
+  required uint32 svr_id = 2;
 } 
 
 message msg_echo {
-  required proto proto_id = 1 [default=id];
-  required uint32 msg_id = 2 [default=3];
-  optional string text = 3;
+  required uint32 msg_id = 1 [default=3];
+  optional string text = 2;
 } 

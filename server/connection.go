@@ -24,6 +24,7 @@ type IConnectionHandler interface {
 
 	Send2Client(CID, *Message) bool
 	Send2Clients(CIDS, *Message) bool
+
 	Send2Server(SID, *Message) bool
 	Send2Servers(SIDS, *Message) bool
 }
@@ -50,6 +51,7 @@ func (this *ConnectionHandler) getConnBySID(sid SID) *Connection {
 
 func (this *ConnectionHandler) RegisterProtocol(proto IProtocol) {
 	protid := proto.GetProtID()
+	proto.SetConn(this)
 	this.proto[protid] = proto
 }
 
@@ -79,6 +81,11 @@ func (this *ConnectionHandler) Send2Clients(cids CIDS, msg *Message) bool {
 
 func (this *ConnectionHandler) Send2Server(sid SID, msg *Message) bool {
 	//TODO
+	conn := this.getConnBySID(sid)
+	if conn == nil {
+		return false
+	}
+	conn.Post(msg)
 	return true
 }
 
@@ -93,6 +100,9 @@ func (this *ConnectionHandler) Send2Servers(sids SIDS, msg *Message) bool {
 		for _, sid := range sids {
 			fmt.Println("Find conn:", sid)
 			conn := this.getConnBySID(sid)
+			if conn == nil {
+				return false
+			}
 			conn.Post(msg)
 		}
 	}
